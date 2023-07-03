@@ -15,6 +15,19 @@ export const uiReducer = (state, action) => {
                 RegisterModalisOpen: false,
             };
 
+        case '[UI] - onOpen login modal':
+            console.log('onOpen login modal')
+            return {
+                ...state,
+                LoginModalisOpen: true,
+            };
+
+        case '[UI] - onClose login modal':
+            console.log('onClose login modal')
+            return {
+                ...state,
+                LoginModalisOpen: false,
+            };
 
         default: return state;
     }

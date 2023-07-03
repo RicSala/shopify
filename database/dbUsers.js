@@ -24,7 +24,7 @@ export const checkUserEmailPassword = async (email, password) => {
 
     console.log("user", user)
 
-    const isCorrectPassword = password === user.hashedPassword;
+    const isCorrectPassword = password === user.password;
 
     if (!isCorrectPassword) {
         console.log("CONTRASEÑA INCORRECTA")

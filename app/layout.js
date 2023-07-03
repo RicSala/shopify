@@ -3,8 +3,10 @@ import './globals.css'
 import { Figtree, Inter } from 'next/font/google'
 import ClientSessionProvider from '@/providers/SessionProvider'
 import UiProvider, { UiContext } from '@/providers/ui/UiProvider'
-import RegisterModal from '@/components/modals/RegisterModal'
 import ToasterProvider from '@/providers/toaster/ToasterProvider'
+import { AuthProvider } from '@/providers/auth/AuthProvider'
+import ModalsProvider from '@/providers/modalsProvider'
+import UserProvider from '@/providers/UserProvider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -22,13 +24,17 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={font.className}>
         <ClientSessionProvider>
-          <UiProvider>
-            <ToasterProvider />
-            <RegisterModal />
-            <Sidebar>
-              {children}
-            </Sidebar>
-          </UiProvider>
+          <AuthProvider>
+            <UserProvider>
+              <UiProvider>
+                <ToasterProvider />
+                <ModalsProvider />
+                <Sidebar>
+                  {children}
+                </Sidebar>
+              </UiProvider>
+            </UserProvider>
+          </AuthProvider>
         </ClientSessionProvider>
 
       </body>

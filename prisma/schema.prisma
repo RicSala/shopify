@@ -24,12 +24,14 @@ model User {
   updatedAt DateTime @updatedAt
 
   // CUSTOM FIELDS___________________
-  fullname       String?
-  avatar_url     String?
-  billingAddress Json?
-  email          String  @unique // TODO: he is not storing the email??
-  paymentMethod  Json?
-  payment_method String?
+  name            String?
+  avatar_url      String?
+  billingAddress  Json?
+  email           String  @unique // TODO: he is not storing the email??
+  password        String
+  confirmPassword String
+  paymentMethod   Json?
+  payment_method  String?
 
   // RELATIONS ___________________
   Customer     Customer[]

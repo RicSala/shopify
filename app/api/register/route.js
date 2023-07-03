@@ -31,7 +31,7 @@ export async function POST(req) {
     });
 
     if (userExists) {
-        return NextResponse.json({ error: 'No ha sido posible realizar el registro - USUARIO' }, { status: 500 })
+        return NextResponse.json({ error: 'No ha sido posible realizar el registro - USUARIO' }, { status: '400' })
         // return NextResponse.json({ error: 'No ha sido posible realizar el registro - USUARIO' }, { status: '500', })
     }
 
@@ -45,7 +45,7 @@ export async function POST(req) {
                 // city: 'Pending',
                 // role: 'user',
                 password,
-                // confirmPassword
+                confirmPassword
             }
         })
 

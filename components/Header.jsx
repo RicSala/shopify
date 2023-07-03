@@ -8,6 +8,7 @@ import { BiSearch } from "react-icons/bi";
 import Button from "./Button";
 import { useContext } from "react";
 import { UiContext } from "@/providers/ui/UiProvider";
+import { useUser } from "@/hooks/useUser";
 
 
 const Header = ({
@@ -15,7 +16,14 @@ const Header = ({
     className,
 }) => {
 
-    const { onOpenRegisterModal, onCloseRegisterModal } = useContext(UiContext)
+    const { onOpenRegisterModal, onCloseRegisterModal, onOpenLoginModal } = useContext(UiContext)
+    const { user,
+        accessToken,
+        isLoading,
+        userDetails,
+        subscription, } = useUser();
+
+    console.log("USE USER VALUE", user, accessToken, isLoading, userDetails, subscription)
 
     const handleLogOut = () => {
         console.log('clicked to handle logout');
@@ -71,7 +79,7 @@ const Header = ({
                         </div>
                         <div>
                             <Button
-                                onClick={() => { }}
+                                onClick={onOpenLoginModal}
                                 className="bg-white px-6 py-2">
                                 Login
                             </Button>

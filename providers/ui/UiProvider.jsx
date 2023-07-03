@@ -29,6 +29,16 @@ const UiProvider = ({ children }) => {
         dispatch({ type: '[UI] - onClose register modal' });
     };
 
+    // same for login
+    const onOpenLoginModal = () => {
+        dispatch({ type: '[UI] - onOpen login modal' });
+    };
+
+    const onCloseLoginModal = () => {
+        dispatch({ type: '[UI] - onClose login modal' });
+    };
+
+
     return (
         <UiContext.Provider value={{
             ...state,
@@ -36,6 +46,8 @@ const UiProvider = ({ children }) => {
             // methods
             onOpenRegisterModal,
             onCloseRegisterModal,
+            onOpenLoginModal,
+            onCloseLoginModal,
         }}>
             {children}
         </UiContext.Provider>
