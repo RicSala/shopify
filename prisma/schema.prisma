@@ -1,0 +1,223 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js" // Specify the Prisma client - 
+}
+
+datasource db {
+  provider = "mongodb" // Specify the MongoDB database adapter
+  url      = env("MONGO_URL")
+}
+
+// SUMMARY:
+// - User: only for basic info and auth. Can have multiple subscriptions.
+//      - Customer: private table that maps stripe customer id to user id.
+// - Price: one price for one product (this is what the customer subscribes to)
+//      - Product: can have multiple prices
+// - Subscription: relation between user and a price (that refers to a product)
+
+model User {
+  // DATABASE FIELDS___________________
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // CUSTOM FIELDS___________________
+  fullname       String?
+  avatar_url     String?
+  billingAddress Json?
+  email          String  @unique // TODO: he is not storing the email??
+  paymentMethod  Json?
+  payment_method String?
+
+  // RELATIONS ___________________
+  Customer     Customer[]
+  Subscription Subscription[]
+  Song         Song[]
+  LikedSongs   LikedSongs[]
+}
+
+// TODO: to check if we need this table and it's ok
+enum payment_method {
+  STRIPE
+  PAYPAL
+}
+
+//
+//
+// CUSTOMERS  ##############################################
+// Note: private table that maps stripe customer id to user id.
+// the key of this table is the id of the stripe customer and the id of the user
+// combined with @@
+model Customer {
+  id               String @id @default(auto()) @map("_id") @db.ObjectId
+  stripeCustomerId String @unique
+  // RELATIONS ___________________
+  userId           String @db.ObjectId
+  User             User   @relation(fields: [userId], references: [id])
+
+  @@unique([stripeCustomerId, userId])
+}
+
+//
+//
+// PRODUCTS ##############################################
+// Products are created and managed in Stripe and synced to DB via webhooks
+model Product {
+  // DATABASE FIELDS___________________
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // CUSTOM FIELDS___________________
+
+  stripeProductId String  @unique
+  // wether the product is active or not to be bought
+  isActive        Boolean @default(false)
+  // Meant to be displayed on the front end, will show up on invoices
+  name            String
+  // 
+  description     String
+  // A url to the image of the product
+  imageUrl        String
+  // key-value pairs of metadata to store additional information
+  metadata        Json?
+
+  // RELATIONS ___________________
+  // The prices for this product
+  prices Price[]
+}
+
+//
+//
+// PRICES ##############################################
+// Prices are created and managed in Stripe and synced to DB via webhooks
+model Price {
+  // DATABASE FIELDS___________________
+  // Price id from stripe
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // stripe price id
+  stripePriceId String @unique
+
+  // wether the price is active in stripe or not
+  isActive        Boolean             @default(false)
+  // A brief description of the price
+  description     String
+  // The price in the smallest currency unit (cents)
+  unitAmount      Int
+  // three letter iso currency code
+  currency        String
+  // 'one time' or 'recurring'
+  type            PricingType
+  // The interval at which the price is billed 'day', 'week', 'month', 'year'
+  interval        PricingPlanInterval
+  // number of intervals between each billing (ie: 2 for every 2 months)
+  intervalCount   Int
+  // The stripe id for the price if any
+  trialPeriodDays Int?
+  // key-value pairs of metadata to store additional information
+  metadata        Json?
+
+  // RELATIONS ___________________
+  productId    String         @db.ObjectId
+  // The product this price is for (one product can have multiple prices)
+  product      Product        @relation(fields: [productId], references: [id])
+  Subscription Subscription[]
+}
+
+enum PricingType {
+  ONE_TIME
+  RECURRING
+}
+
+enum PricingPlanInterval {
+  DAY
+  WEEK
+  MONTH
+  YEAR
+}
+
+// SUBSCRIPTIONS ##############################################
+// Subscriptions are created and managed in Stripe and synced to DB via webhooks
+model Subscription {
+  // DATABASE FIELDS___________________
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  //
+  // CUSTOM FIELDS___________________
+  //
+  // The stripe id for the subscription
+  stripeSubscriptionId String             @unique
+  // status of the subscription
+  status               SubscriptionStatus
+  // set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
+  metadata             Json?
+  // quantity multiple by unit amount -> for multiple user seats
+  quantity             Int
+  // if true the subscription will cancel at the end of the current period
+  cancelAtPeriodEnd    Boolean
+  // current period end date
+  currentPeriodEnd     DateTime
+  // a date in the future at which the subscription will automatically get canceled
+  cancelAt             DateTime?
+  // if the subs has been canceled the date it was canceled
+  canceledAt           DateTime?
+  // if the subs has a trial period the date it will end
+  trialEnd             DateTime?
+  // if the subs has a trial period the date it will start
+  trialStart           DateTime?
+
+  // RELATIONS ___________________
+  userId  String @db.ObjectId
+  user    User   @relation(fields: [userId], references: [id])
+  priceId String @db.ObjectId
+  price   Price  @relation(fields: [priceId], references: [id])
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  CANCELED
+  INCOMPLETE
+  INCOMPLETE_EXPIRED
+  PAST_DUE
+  UNPAID
+}
+
+// Songs
+model Song {
+  // DATABASE FIELDS___________________
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // CUSTOM FIELDS___________________
+  title      String
+  songPath   String
+  imagePath  String
+  Author     String
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String       @db.ObjectId
+  LikedSongs LikedSongs[]
+}
+
+model LikedSongs {
+  // DATABASE FIELDS___________________
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String @db.ObjectId
+  songId String @db.ObjectId
+
+  // RELATIONS ___________________
+  // TODO: not sure I need this
+  user User @relation(fields: [userId], references: [id])
+  song Song @relation(fields: [songId], references: [id])
+}

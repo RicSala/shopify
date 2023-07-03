@@ -6,12 +6,16 @@ import { RxCaretLeft, RxCaretRight } from 'react-icons/rx';
 import { HiHome } from 'react-icons/hi';
 import { BiSearch } from "react-icons/bi";
 import Button from "./Button";
+import { useContext } from "react";
+import { UiContext } from "@/providers/ui/UiProvider";
 
 
 const Header = ({
     children,
     className,
 }) => {
+
+    const { onOpenRegisterModal, onCloseRegisterModal } = useContext(UiContext)
 
     const handleLogOut = () => {
         console.log('clicked to handle logout');
@@ -60,7 +64,7 @@ const Header = ({
                     <>
                         <div>
                             <Button
-                                onClick={() => { }}
+                                onClick={onOpenRegisterModal}
                                 className="bg-transparent text-neutral-300 font-medium">
                                 Sign Up
                             </Button>
