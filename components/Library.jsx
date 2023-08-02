@@ -2,11 +2,18 @@
 
 import { TbPlaylist } from 'react-icons/tb';
 import { AiOutlinePlus } from 'react-icons/ai';
+import { useUser } from '@/hooks/useUser';
+import { UiContext } from '@/providers/ui/UiProvider';
+import { useContext } from 'react';
 
 const Library = () => {
 
+    const { user } = useUser();
+    const { onOpenLoginModal, onOpenUploadModal } = useContext(UiContext);
+
     const onClick = () => {
-        console.log('clicked to handle upload');
+        if (!user) { return onOpenLoginModal() }
+        onOpenUploadModal();
     };
 
     return (

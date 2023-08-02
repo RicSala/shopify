@@ -29,6 +29,20 @@ export const uiReducer = (state, action) => {
                 LoginModalisOpen: false,
             };
 
+        case '[UI] - onOpen upload modal':
+            console.log('onOpen upload modal')
+            return {
+                ...state,
+                UploadModalisOpen: true,
+            };
+
+        case '[UI] - onClose upload modal':
+            console.log('onClose upload modal')
+            return {
+                ...state,
+                UploadModalisOpen: false,
+            };
+
         default: return state;
     }
 

@@ -31,6 +31,7 @@ export const MyUserContextProvider = (props) => {
         isLoading,
         userDetails,
         subscription,
+        data,
     };
 
 

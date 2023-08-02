@@ -11,7 +11,7 @@ export const UiContext = createContext()
 const UI_INITIAL_STATE = {
     RegisterModalisOpen: false,
     LoginModalisOpen: false,
-    RentModalisOpen: false,
+    UploadModalisOpen: false,
 };
 
 
@@ -38,6 +38,16 @@ const UiProvider = ({ children }) => {
         dispatch({ type: '[UI] - onClose login modal' });
     };
 
+    // same for upload modal
+    const onOpenUploadModal = () => {
+        dispatch({ type: '[UI] - onOpen upload modal' });
+    };
+
+    const onCloseUploadModal = () => {
+        dispatch({ type: '[UI] - onClose upload modal' });
+    };
+
+
 
     return (
         <UiContext.Provider value={{
@@ -48,6 +58,9 @@ const UiProvider = ({ children }) => {
             onCloseRegisterModal,
             onOpenLoginModal,
             onCloseLoginModal,
+            onOpenUploadModal,
+            onCloseUploadModal,
+
         }}>
             {children}
         </UiContext.Provider>

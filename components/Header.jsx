@@ -9,6 +9,9 @@ import Button from "./Button";
 import { useContext } from "react";
 import { UiContext } from "@/providers/ui/UiProvider";
 import { useUser } from "@/hooks/useUser";
+import { signOut } from "next-auth/react";
+import { toast } from "react-hot-toast";
+import { FaUserAlt } from "react-icons/fa";
 
 
 const Header = ({
@@ -17,19 +20,28 @@ const Header = ({
 }) => {
 
     const { onOpenRegisterModal, onCloseRegisterModal, onOpenLoginModal } = useContext(UiContext)
+    const router = useRouter();
     const { user,
         accessToken,
         isLoading,
         userDetails,
-        subscription, } = useUser();
+        subscription,
+        data } = useUser();
 
-    console.log("USE USER VALUE", user, accessToken, isLoading, userDetails, subscription)
+    console.log("USE USER VALUE", user, accessToken, isLoading, userDetails, subscription, "DATA", data)
 
     const handleLogOut = () => {
-        console.log('clicked to handle logout');
+
+        signOut()
+            .then(() => {
+                toast.success("Logged out successfully");
+                router.refresh();
+            })
+            .catch((err) => {
+                toast.error(err.message);
+            });
     };
 
-    const router = useRouter();
 
     return (
         <div className={twMerge(`
@@ -69,22 +81,37 @@ const Header = ({
 
                 </div>
                 <div className="flex justify-between items-center gap-x-4">
-                    <>
-                        <div>
-                            <Button
-                                onClick={onOpenRegisterModal}
-                                className="bg-transparent text-neutral-300 font-medium">
-                                Sign Up
-                            </Button>
-                        </div>
-                        <div>
-                            <Button
-                                onClick={onOpenLoginModal}
-                                className="bg-white px-6 py-2">
-                                Login
-                            </Button>
-                        </div>
-                    </>
+
+                    {user ? <div className="
+                    flex gap-x-4 items-center">
+                        <Button className="bg-white px-6 py-2"
+                            onClick={handleLogOut}
+                        >
+
+                            Logout
+                        </Button>
+                        <Button className="bg-white"
+                            onClick={() => { router.push('/account') }}>
+                            <FaUserAlt />
+                        </Button>
+                    </div> :
+                        <>
+                            <div>
+                                <Button
+                                    onClick={onOpenRegisterModal}
+                                    className="bg-transparent text-neutral-300 font-medium">
+                                    Sign Up
+                                </Button>
+                            </div>
+                            <div>
+                                <Button
+                                    onClick={onOpenLoginModal}
+                                    className="bg-white px-6 py-2">
+                                    Login
+                                </Button>
+                            </div>
+                        </>
+                    }
 
                 </div>
             </div>
